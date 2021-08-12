@@ -151,7 +151,7 @@ def weather_ascii(city='Los Angeles'):
 
 
 #Runs the bot on the specified token
-bot.run("ODc0MzgyODYxMTYyMTMxNTM2.YRGKfw.K193MyTc4okABT24Ag0XgbS5pHw")
+bot.run("ODc0MzgyODYxMTYyMTMxNTM2.YRGKfw.A43U2lWOMVH6gtRkgVNUMRjg6aU")
 
 
 
