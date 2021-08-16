@@ -191,7 +191,7 @@ async def forecast(ctx, city = "Los Angeles", period = "1"):
     # FINALLY creates the image!
     pill.create_weather_card_hourly(city.upper(), current_temp, current_code, local_time, hourly_temp, hourly_code, progress)
 
-
+    await ctx.send(file=discord.File('hourly.png'))
 
 
 
