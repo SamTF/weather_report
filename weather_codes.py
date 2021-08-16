@@ -50,6 +50,7 @@ WWO_CODE = {
     "389": "ThunderyHeavyRain",
     "392": "ThunderySnowShowers",
     "395": "HeavySnowShowers",
+    "999": "Moon",
 }
 
 WEATHER_SYMBOL = {
@@ -87,5 +88,6 @@ ACCENT_COLOUR = {
     "ThunderyShowers":      "#F0C61A",
     "LightSnow":            "#CFE4E7",
     "HeavySnow":            "#CFE4E7",
-    "LightSnowShowers":     "#CFE4E7"
+    "LightSnowShowers":     "#CFE4E7",
+    'Moon':                 "#AD98BF"
 }
