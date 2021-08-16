@@ -3,10 +3,10 @@ from enum import Enum
 from PIL import ImageFont
 
 class Font(Enum):
-    BOLD            = ImageFont.truetype('/fonts/MyriadPro-Bold.otf',       130)
-    CONDENSED       = ImageFont.truetype("/fonts/MyriadPro-Cond.otf",       64)
-    BOLD_CONDENSED  = ImageFont.truetype("/fonts/MyriadPro-BoldCond.otf",   72)
-    BOLD_SMALL      = ImageFont.truetype('/fonts/MyriadPro-Bold.otf',       36)
+    BOLD            = ImageFont.truetype('fonts/MyriadPro-Bold.otf',       130)
+    CONDENSED       = ImageFont.truetype("fonts/MyriadPro-Cond.otf",       64)
+    BOLD_CONDENSED  = ImageFont.truetype("fonts/MyriadPro-BoldCond.otf",   72)
+    BOLD_SMALL      = ImageFont.truetype('fonts/MyriadPro-Bold.otf',       36)
     
 
 ### TEXT FORMATTING CLASS ###
