@@ -1,6 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont     # Importing PIL to generate and manipulate  images
 from text import Text, Font                     # My own script with a Text class and Enumerator of Fonts
 import weather_codes                            # Lookup dictionary to convert Weather Code into the appropriate icon
+from io import BytesIO                          # Used to store the output images in memory instead of saving them to disk
 
 
 ### CONSTANTS for creating the image canvas and formatting other elements
@@ -15,8 +16,8 @@ ICON_POS    = (100, 200)
 # https://stackoverflow.com/questions/27652121/get-binary-representation-of-pil-image-without-saving
 
 
-
-def create_weather_card(city:str, temperature:str, time:str, weather_code:str):
+###### CLASSIC REPORT #################################################
+def create_weather_card_simplified(city:str, temperature:str, time:str, weather_code:str):
     '''
     Creates a cool pretty weather card reporting on the current weather conditions of a specified city.
     city: The name of the city;
@@ -50,24 +51,28 @@ def create_weather_card(city:str, temperature:str, time:str, weather_code:str):
     # canvas.show()
 
 
+###### REPORT 2.0 #################################################
+### Constants
+TEMPLATE        = 'templates/hourly.png'                                # path to the image template
+TEMPLATE_IMG    = Image.open(TEMPLATE)                                  # opens the template and stores it in memory
 
-TEMPLATE = 'templates/hourly2.png'
-ICONS_64 = 'icons/64/{}.png'
-MARKER   = 'templates/marker.png'
+MARKER          = 'templates/marker.png'                                # path to the daily progress marker
+MARKER_IMG      = Image.open(MARKER).convert('RGBA')                    # opens the marker icon with alpha layer and stores it in memory
+marker_pos_y = 1051                                                     # position of the progress marker in the y-axis on top of the timeline
 
-icons_pos_y = 1069
-icons_pos_x = [134, 267, 400, 533, 666, 799]
+ICONS_64 = 'icons/64/{}.png'                                            # f-string path to the small 64x64 mono icons
 
-forecast_pos_y = 1183
-forecast_pos_x = [164, 299, 432, 565, 698, 832]
-forecast_pos_x = [x + 7 for x in forecast_pos_x]
-forecast_colours = ['#A5C3C8', '#65ADC4', '#FCC017', '#E19525', '#863C3D', '#26202C']
+icons_pos_y = 1069                                                      # position of the 64px icons in the y-axis
+icons_pos_x = [134, 267, 400, 533, 666, 799]                            # positions of the 64px icons in the x-axis
 
-marker_pos_y = 1051
+forecast_pos_y = 1183                                                   # position of the forecast temp text in the y-axis under the icons
+forecast_pos_x = [171, 306, 439, 572, 705, 839]                         # positions of the text in the x-axis
+forecast_colours = ['#A5C3C8', '#65ADC4', '#FCC017', '#E19525', '#863C3D', '#26202C']   # colours of the forecast text
+
 
 def create_weather_card_hourly(city: str, current_temp:str, current_code:str, time:str, forecast:list, forecast_codes:list, progress=int):
     '''
-    Creates a weather card with 3-hourly forecasts.
+    Creates a weather card with six tri-hourly forecasts. (from 9AM to midnight)
 
     city: Name of the city to report on the weather
     current_temp: Current temperature there in Celsius
@@ -78,8 +83,8 @@ def create_weather_card_hourly(city: str, current_temp:str, current_code:str, ti
     progress: Amount of minutes elapsed into current day
     '''
     
-    # Loading the canvas template
-    canvas = Image.open(TEMPLATE)
+    # Copying the template image
+    canvas = TEMPLATE_IMG.copy()
 
     # Loading and pasting the weather icon
     icon_name =  weather_codes.WWO_CODE[current_code]
@@ -125,16 +130,12 @@ def create_weather_card_hourly(city: str, current_temp:str, current_code:str, ti
 
     
     # ADDING DAY PROGRESS MARKER
-    marker = Image.open(MARKER).convert('RGBA')
+    marker = MARKER_IMG.copy()
     canvas.paste(marker, (progress, marker_pos_y), mask=marker)
 
 
-    # Saving the created image
-    canvas.save('hourly.png', format='PNG', quality=100, optimize=True)
-    canvas.show()
+    # Saving the created image to memory in BytesIO as a "file-like object" -> https://stackoverflow.com/questions/60006794/send-image-from-memory
+    weather_card = BytesIO()
+    canvas.save(weather_card, format='PNG')
 
-
-
-
-# create_weather_card('Sao Pedro de Moel', '21', '04:44 PM', '116')
-# hourly_weather('LOS ANGELES', '25', '116', '11:37 AM', [26, 30, 31, 29, 27, 26], ['116', '116', '176', '176', '176', '999'])
+    return weather_card
