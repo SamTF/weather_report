@@ -51,6 +51,7 @@ async def daily_msg():
 
     channel = bot.get_channel(TEXTCHANNEL)                                                                              # Gets the #textchatgenerals channel directly
     await channel.send(msg)                                                                                             # sends the message to the channel
+
     
 
 
@@ -76,13 +77,13 @@ async def report(ctx):
                  create_option(
                     name="city",
                     description="🏙️ Which city to report on? 🌇",
-                    option_type=3,                                                                                         # 3 = STRING
+                    option_type=3,                                                                                          # 3 = STRING
                     required=True
                 ),
                  create_option(
                     name='simplified',
                     description='Full report with hourly forecasts, or classic simplified version?',
-                    option_type=5,                                                                                      # 5 = BOOLEAN
+                    option_type=5,                                                                                          # 5 = BOOLEAN
                     required=False,
                 )
              ])
@@ -115,15 +116,19 @@ async def weather(ctx, city, simplified=False):
                ),
                create_option(
                  name="period",
-                 description="🌞 Time period to forecast. Default is 3 days. 📅",
+                 description="🌞 Time period to forecast. Default is tomorrow. 📅",
                  option_type=3,                                                                                         # 3 = STRING
                  required=False,                                                                                        # Not required
                  choices=[
-                  create_choice(                                                                                        # Today and tomorrow
+                create_choice(                                                                                          # Tomorrow
+                    name="Tomorrow",
+                    value="1"
+                  ),
+                  create_choice(                                                                                        # Today and tomorrow and after tomorrow
                     name="3 Days",
                     value="3"
                   ),
-                  create_choice(                                                                                        # Today and tomorrow and after tomorrow
+                  create_choice(                                                                                        # Seven Days into the future
                     name="Weekly",
                     value="7"
                   )
@@ -133,7 +138,9 @@ async def weather(ctx, city, simplified=False):
 
 # The weather forecast
 async def forecast(ctx, city = "Los Angeles", period = "1"):
-    await ctx.send('👷 this does nothing for now :)')
+    weather_card = weather_report.tomorrow(city)
+    weather_card.seek(0)                                                                                            # "Pillow sets the file pointer at the end when it saves. You'll have to seek back to the start of the buffer"
+    await ctx.send(file=discord.File(weather_card, 'weather_report.png'))                                           # Sending an image as a bytes object from memory as "weather_report.png"
 
 
 

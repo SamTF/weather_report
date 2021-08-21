@@ -10,9 +10,11 @@ import pill                                                                     
 
 ###### CONSTANTS #################################################
 URL         = 'https://wttr.in/{}'
-WEATHERAPI  = 'http://api.weatherapi.com/v1/forecast.json?key=b9b5e3684034451a9b5151027211308&q={}&days=1'
+WEATHERAPI  = 'http://api.weatherapi.com/v1/forecast.json?key=b9b5e3684034451a9b5151027211308&q={}&days=3'
 night       = datetime(1, 2, 3, hour=21, minute=0).time()
 dawn        = datetime(1, 2, 3, hour=6, minute=0).time()
+HOURS = [9, 12, 15, 18, 21, 23]                                                                         # we only want 9AM, 12PM, 3PM, 6PM, 9PM, and 12AM
+
 
 
 ###### HELPERS #################################################
@@ -45,6 +47,22 @@ def get_daily_progress(local_datetime:datetime) -> int:
     progress = int((m * minutes_elapsed) - 232.5)                                                           # anything before 232.5 minutes does not show up, so shift everything to the left
 
     return progress
+
+# Getting forecasted temperature and condition at specified hours
+def get_hourly_forecast(forecast_dict:dict):    
+    temps = [get_temp(forecast_dict[x]) for x in HOURS]                                                     # getting the temperature forecast at each hour specified, rounded to full digit
+    codes = [get_code_from_json(forecast_dict[x]) for x in HOURS]                                           # getting the forecast condition code
+    codes[-1] = '999'                                                                                       # hardcoding the code at 12AM to be the Moon
+
+    return temps, codes
+
+# Taking a YYYY-MM-DD date string and formatting it as MONTH day (AUGUST 21)
+def get_formatted_date(date_str:str) -> str:
+    date = datetime.strptime(date_str, '%Y-%m-%d')                                                          # converting the date to datetime so that we can format it differently
+    date_formatted = date.strftime('%B %d').upper()                                                         # formatting the date as AUGUST 21 (month_name day)
+
+    return date_formatted
+
 ###
 
 
@@ -101,5 +119,31 @@ def weather_report(city:str):
 
     # FINALLY creates the image and saves it to memory!
     weather_card = pill.create_weather_card_hourly(city.upper(), current_temp, current_code, local_time, hourly_temp, hourly_code, progress)
+
+    return weather_card
+
+
+###############################
+def tomorrow(city:str):
+    # Getting weather data from weatherapi.com
+    response = requests.get(WEATHERAPI.format(city))
+    data = response.json()
+
+    # Reading and formatting current values from the dictionary
+    forecast = data['forecast']['forecastday'][1]
+    avg_temp = round(forecast['day']['avgtemp_c'])                                                          # getting the average temperature forecasted, rounded
+    avg_temp = f'{avg_temp}º'                                                                               # adding the degrees symbol
+    condition_code = get_code_from_json(forecast['day'])                                                    # getting the forecasted condition code
+    
+    # Forecast date
+    date = forecast['date']                                                                                 # getting tomorrow's date string
+    date_formatted = get_formatted_date(date)
+
+    # Getting the hourly forecast values
+    forecast_dict = forecast['hour']                                                                        # all hourly forecasts are children of this element
+    hourly_temps, hourly_codes = get_hourly_forecast(forecast_dict)
+
+    # Creating the weather card image
+    weather_card = pill.create_tomorrow_forecast(city.upper(), avg_temp, condition_code, date_formatted, hourly_temps, hourly_codes)
 
     return weather_card
