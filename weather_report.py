@@ -124,7 +124,7 @@ def weather_report(city:str):
 
 
 ###############################
-def tomorrow(city:str):
+def tomorrow(city:str, transparent:bool):
     # Getting weather data from weatherapi.com
     response = requests.get(WEATHERAPI.format(city))
     data = response.json()
@@ -144,6 +144,6 @@ def tomorrow(city:str):
     hourly_temps, hourly_codes = get_hourly_forecast(forecast_dict)
 
     # Creating the weather card image
-    weather_card = pill.create_tomorrow_forecast(city.upper(), avg_temp, condition_code, date_formatted, hourly_temps, hourly_codes)
+    weather_card = pill.create_tomorrow_forecast(city.upper(), avg_temp, condition_code, date_formatted, hourly_temps, hourly_codes, transparent)
 
     return weather_card

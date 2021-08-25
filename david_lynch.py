@@ -112,7 +112,13 @@ async def weather(ctx, city, simplified=False):
                  name="city",
                  description="🏙️ Which city to report on? 🌇",
                  option_type=3,                                                                                         # 3 = STRING
-                 required=False                                                                                         # Not required but maybe should be
+                 required=True
+               ),
+               create_option(
+                   name="transparent",
+                   description="Transparent PNG background instead of light solid background",
+                   option_type=5,                                                                                       # 5 = BOOLEAN
+                   required=False
                ),
                create_option(
                  name="period",
@@ -137,8 +143,8 @@ async def weather(ctx, city, simplified=False):
              ])
 
 # The weather forecast
-async def forecast(ctx, city = "Los Angeles", period = "1"):
-    weather_card = weather_report.tomorrow(city)
+async def forecast(ctx, city, transparent = False, period = "1"):
+    weather_card = weather_report.tomorrow(city, transparent)
     weather_card.seek(0)                                                                                            # "Pillow sets the file pointer at the end when it saves. You'll have to seek back to the start of the buffer"
     await ctx.send(file=discord.File(weather_card, 'weather_report.png'))                                           # Sending an image as a bytes object from memory as "weather_report.png"
 
