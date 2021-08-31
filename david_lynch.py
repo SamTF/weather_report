@@ -16,6 +16,12 @@ import weather_report                                                           
 
 ###### CONSTANTS #################################################
 TEXTCHANNEL = 349267380452589568
+TOKEN_FILE = '.david_lynch.token'                                                                                       # Name of the text file storing the unique Discord bot token (very dangerous, do not share)
+
+# Gets the Discord bot token
+def get_token(token_file):
+    with open(token_file, 'r') as f:
+        return f.read()
 
 
 #The command prefix of all the commands
@@ -178,7 +184,9 @@ def forecast(ctx, city = "Los Angeles", days = ""):
 
 
 #Runs the bot on the specified token
-bot.run("ODc0MzgyODYxMTYyMTMxNTM2.YRGKfw.A43U2lWOMVH6gtRkgVNUMRjg6aU")
+if __name__ == '__main__':
+    TOKEN = get_token(TOKEN_FILE)
+    bot.run(TOKEN)
 
 
 
