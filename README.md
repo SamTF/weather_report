@@ -26,4 +26,5 @@ This is a discord bot that gives you nicely formatted images detailing the curre
 
 
 3. David Lynch also says good morning, followed by the day's date, and wishes everyone a great day every day at 7AM GMT :)
+
 ![:)](http://puu.sh/I7Yiq/3ed756f1ac.jpg)
