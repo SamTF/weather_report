@@ -17,6 +17,7 @@ This is a discord bot that gives you nicely formatted images detailing the curre
 - Uploads an image with inter-day forecasts (same tri-hourly period) as well as the average temperature and condition
 - `transparent` uploads the image with a PNG alpha background instead of the solid white background, and is therefore also formatted a bit differently. Kinda like a dark mode I guess.
 - Example:
+
 ![/forecast philadelphia true](http://puu.sh/I7Yen/63521ef909.jpg)
 [full-size image output](https://media.discordapp.net/attachments/349267380452589568/882380194298609684/weather_report.png)
 
