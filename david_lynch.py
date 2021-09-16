@@ -53,6 +53,11 @@ async def daily_msg():
     weekday = datetime.today().strftime('%A')
     msg = f'Good morning. It\'s {today}, and it\'s a {weekday}.\nEveryone: have a great day!'
 
+    if weekday == 'Friday' or datetime.today().weekday() == 4:
+        msg = f'Good morning. It\'s {today}, and if youuuuuuuuuuuuuu can believe it... *it\'s a {weekday} once again!*\nEveryone: have a great day!'
+
+
+
     print(msg)
 
     channel = bot.get_channel(TEXTCHANNEL)                                                                              # Gets the #textchatgenerals channel directly
@@ -62,18 +67,6 @@ async def daily_msg():
 
 
 ###### SLASH COMMANDS //// #################################################                                            -> https://discord-py-slash-command.readthedocs.io/en/latest/gettingstarted.html
-
-### David Lynch's intro from his weather report videos. Gonna put this on a loop running every morning :)
-@slash.slash(name="report",
-             description="Weather report 😎⛅📅",
-             guild_ids=guild_ids)
-async def report(ctx):
-    today = datetime.today().strftime('%B %#d, %Y')
-    weekday = datetime.today().strftime('%A')
-    msg = f'Good morning. It\'s {today}, and it\'s a {weekday}!'
-    await ctx.send(content=msg)
-
-
 
 ### Getting the actual weather rn
 @slash.slash(name="weather",
