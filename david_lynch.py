@@ -13,15 +13,28 @@ import requests                                                                 
 
 import weather_report                                                                                                   # my script that handles API requests, formatting the data, and calling pill.py to create the images
 
+import pandas as pd
 
 ###### CONSTANTS #################################################
 TEXTCHANNEL = 349267380452589568
 TOKEN_FILE = '.david_lynch.token'                                                                                       # Name of the text file storing the unique Discord bot token (very dangerous, do not share)
+DAILY_FILE = 'daily_forecasts.csv'
 
 # Gets the Discord bot token
 def get_token(token_file):
     with open(token_file, 'r') as f:
         return f.read()
+
+# Gets the CSV file containing the daily forecast database and returns it as a pandas dataframe
+def get_daily_forecast_df() -> pd.DataFrame:
+    try:
+        df = pd.read_csv(DAILY_FILE, header=0, index_col=0)
+
+    except:
+        df = pd.DataFrame(columns=['userID', 'city'])
+        df.set_index('userID', inplace=True)
+    
+    return df
 
 
 #The command prefix of all the commands
@@ -38,10 +51,11 @@ print("_____________DAVID LYNCH INITIALISED_____________")
 async def on_ready():
     today = datetime.today().strftime('%B %#d, %Y')
     weekday = datetime.today().strftime('%A')
-    print(f'Good morning. It\'s {today}, and it\'s a {weekday}!')                                                        # just a print in the console to confirm the bot is running
+    print(f'Good morning. It\'s {today}, and it\'s a {weekday}!')                                                       # just a print in the console to confirm the bot is running
     
     await bot.change_presence(activity=discord.Game('Golden sunshine all along the way! 🌞'))                           # custom status
-    # daily_msg.start()                                                                                                   # starts the daily greeting loop
+    daily_msg.start()                                                                                                   # starts the daily greeting loop
+    daily_forecast_task.start()                                                                                         # starts the daily forecast loop
 
 
 
@@ -56,14 +70,22 @@ async def daily_msg():
     if weekday == 'Friday' or datetime.today().weekday() == 4:
         msg = f'Good morning. It\'s {today}, and if youuuuuuuuuuuuuu can believe it... *it\'s a {weekday} once again!*\nEveryone: have a great day!'
 
-
-
     print(msg)
 
     channel = bot.get_channel(TEXTCHANNEL)                                                                              # Gets the #textchatgenerals channel directly
-    await channel.send(msg)                                                                                             # sends the message to the channel
+    await channel.send(msg)                                                                                             # sends the message to the channel                                                                             
 
-    
+@tasks.loop(hours=24, seconds=10)
+async def daily_forecast_task():
+    print("Time for the daily forecast!")
+    channel = bot.get_channel(TEXTCHANNEL)                                                                              # Gets the #textchatgenerals channel directly
+    df = get_daily_forecast_df()                                                                                        # Gets the dataframe with users and their requested cities
+
+    # loop over all items in the dataframe and create a weather report card for each user and their city
+    for index, row in df.iterrows():
+        weather_card = weather_report.weather_report(row.city)
+        weather_card.seek(0)
+        await channel.send(f"<@{index}> Here's the weather for **{row.city}** today, champ! 🕶️", file=discord.File(weather_card, 'weather_report.png'))
 
 
 ###### SLASH COMMANDS //// #################################################                                            -> https://discord-py-slash-command.readthedocs.io/en/latest/gettingstarted.html
@@ -148,8 +170,48 @@ async def forecast(ctx, city, transparent = False, period = "1"):
     await ctx.send(file=discord.File(weather_card, 'weather_report.png'))                                           # Sending an image as a bytes object from memory as "weather_report.png"
 
 
+# Choosing a 
+@slash.slash(
+        name='daily_forecast',
+        guild_ids=guild_ids,
+        description="🌞 Get a daily morning weather report for your chosen city! ⏰",
+        options=[
+            create_option(
+                name="city",
+                description="🏙️ Which city to report on? 🌇",
+                option_type=3,                                                                                          # 3 = STRING
+                required=True
+            ),
+            create_option(
+                name="cancel",
+                description="❌Cancel your daily forecast ✋",
+                option_type=5,                                                                                          # 5 = BOOLEAN
+                required=False
+            )
+        ]
+)
+async def daily_forecast(ctx, city:str, cancel:bool = False):
+    df = get_daily_forecast_df()
+    userID = ctx.author.id
 
+    # Cancelling a user's daily forecast
+    if cancel:
+        # checking that the user is actually in the dataframe
+        if userID not in df.index:
+            await ctx.send("Can't cancel your daily forecast if you don't have one to begin with, champ! 👍")
+            return
+        
+        # if so, delete their record
+        df.drop(userID, inplace=True)
+        await ctx.send("No more daily reports for you, pal! ✌️")
+        df.to_csv(DAILY_FILE)
+        return
 
+    # Add/Update their record with the given city
+    df.loc[userID] = city.capitalize()
+    df.to_csv(DAILY_FILE)
+
+    await ctx.send(f'Okay, I\'ll get you a weather report for **{city}** every morning! 👍')
 
 
 
